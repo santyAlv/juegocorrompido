@@ -1,0 +1,92 @@
+/* ============================================================
+   Glitch.TEC — base: variables, reset, tipografia
+   ============================================================ */
+
+:root {
+  --green:       #35ff7a;
+  --green-dim:   #159c46;
+  --amber:       #ffcc44;
+  --red:         #ff3b52;
+  --red-dim:     #a51226;
+  --cyan:        #56d8ff;
+  --violet:      #b26bff;
+
+  --bg-deep:     #05070a;
+  --bg-panel:    #0b1016;
+  --line:        #1d2a36;
+  --text:        #cfe6dd;
+  --text-dim:    #6f8a86;
+
+  /* Chrome estilo WinTEC XP */
+  --xp-blue-1:   #3f8cf3;
+  --xp-blue-2:   #0b47b6;
+  --xp-face:     #ece9d8;
+  --xp-face-2:   #d6d2c2;
+  --xp-border:   #0a3a94;
+  --xp-taskbar1: #3f8cf3;
+  --xp-taskbar2: #1c4fb8;
+  --xp-start1:   #63b357;
+  --xp-start2:   #2f7a2a;
+
+  --mono: "Consolas", "Lucida Console", "DejaVu Sans Mono", monospace;
+  --ui:   "Tahoma", "Verdana", "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family: var(--ui);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+body { user-select: none; }
+
+#crt {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+input, textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+code {
+  font-family: var(--mono);
+  background: rgba(53, 255, 122, .1);
+  border: 1px solid rgba(53, 255, 122, .25);
+  border-radius: 3px;
+  padding: 0 4px;
+  color: var(--green);
+  font-size: .92em;
+}
+
+.hidden { display: none !important; }
+
+/* Scrollbars retro */
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track { background: #0d141b; }
+::-webkit-scrollbar-thumb {
+  background: #22323f;
+  border: 2px solid #0d141b;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover { background: #35505f; }

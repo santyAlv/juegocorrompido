@@ -1,0 +1,300 @@
+/* ============================================================
+   Glitch.TEC — pantallas completas: titulo, manual, boot, finales
+   ============================================================ */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+  overflow: auto;
+  background: var(--bg-deep);
+}
+.screen.is-active { display: block; }
+
+/* ---------- Fondo de rejilla ---------- */
+.screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(53,255,122,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(53,255,122,.045) 1px, transparent 1px);
+  background-size: 34px 34px;
+  pointer-events: none;
+}
+#screen-desktop::before { display: none; }
+
+/* ================= TITULO ================= */
+.title-wrap {
+  position: relative;
+  z-index: 1;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.game-title {
+  font-family: var(--mono);
+  font-size: clamp(48px, 11vw, 132px);
+  letter-spacing: 6px;
+  margin: 0;
+  color: var(--green);
+  text-shadow: 0 0 22px rgba(53,255,122,.45);
+  position: relative;
+}
+.game-title .dot { color: var(--red); }
+
+.game-title::before,
+.game-title::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%;
+  overflow: hidden;
+}
+.game-title::before {
+  color: var(--red);
+  animation: titleGlitchA 3.6s infinite steps(2);
+  clip-path: polygon(0 4%, 100% 4%, 100% 42%, 0 42%);
+}
+.game-title::after {
+  color: var(--cyan);
+  animation: titleGlitchB 4.4s infinite steps(2);
+  clip-path: polygon(0 58%, 100% 58%, 100% 96%, 0 96%);
+}
+@keyframes titleGlitchA {
+  0%,88%,100% { transform: translate(0,0); opacity: 0; }
+  90% { transform: translate(-5px,-2px); opacity: .85; }
+  94% { transform: translate(4px,1px);  opacity: .7; }
+}
+@keyframes titleGlitchB {
+  0%,84%,100% { transform: translate(0,0); opacity: 0; }
+  86% { transform: translate(5px,2px);  opacity: .8; }
+  92% { transform: translate(-3px,-1px); opacity: .6; }
+}
+
+.game-sub {
+  font-family: var(--mono);
+  color: var(--text-dim);
+  letter-spacing: 4px;
+  font-size: clamp(11px, 1.6vw, 16px);
+  margin: 6px 0 26px;
+}
+
+.game-tagline {
+  max-width: 520px;
+  line-height: 1.7;
+  color: #9fbdb4;
+  font-size: 14px;
+  margin: 0 0 34px;
+}
+
+.main-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(320px, 84vw);
+}
+
+.menu-btn {
+  font-family: var(--mono);
+  letter-spacing: 2px;
+  font-size: 14px;
+  padding: 14px 18px;
+  color: var(--green);
+  background: rgba(53,255,122,.06);
+  border: 1px solid var(--green-dim);
+  border-radius: 2px;
+  transition: background .12s, color .12s, transform .08s, box-shadow .12s;
+}
+.menu-btn:hover {
+  background: var(--green);
+  color: #04120a;
+  box-shadow: 0 0 22px rgba(53,255,122,.45);
+}
+.menu-btn:active { transform: translateY(1px); }
+.menu-btn.ghost { color: var(--text-dim); border-color: var(--line); background: transparent; }
+.menu-btn.ghost:hover { background: #1b2630; color: var(--text); box-shadow: none; }
+
+.build-tag {
+  margin-top: 38px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #3f5a55;
+  letter-spacing: 1px;
+}
+
+/* ================= DOCUMENTOS (manual / creditos / victoria) ================= */
+.doc {
+  position: relative;
+  z-index: 1;
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 46px 24px 60px;
+}
+
+.doc-title {
+  font-family: var(--mono);
+  color: var(--green);
+  letter-spacing: 3px;
+  font-size: clamp(20px, 3vw, 30px);
+  margin: 0 0 28px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+}
+.win-title { color: var(--cyan); }
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
+  gap: 14px;
+}
+
+.doc-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--green-dim);
+  border-radius: 3px;
+  padding: 16px 18px;
+}
+.doc-card h3 {
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--amber);
+  letter-spacing: 1px;
+}
+.doc-card p { margin: 0; font-size: 13px; line-height: 1.65; color: #a9c6bd; }
+.doc-card b { color: #e6fff2; }
+
+.cmd-list, .lvl-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 12.5px;
+  line-height: 2;
+  color: #a9c6bd;
+}
+.cmd-list { list-style: none; padding-left: 0; }
+.cmd-list code { display: inline-block; min-width: 0; }
+.lvl-list li b { color: #e6fff2; }
+
+.doc-foot {
+  margin-top: 26px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.8;
+  border-top: 1px dashed var(--line);
+  padding-top: 16px;
+}
+
+.doc-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+.doc-actions .menu-btn { flex: 0 0 auto; min-width: 190px; }
+
+/* ---------- creditos ---------- */
+.credits { list-style: none; margin: 0; padding: 0; }
+.credits li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px 4px;
+  border-bottom: 1px dashed var(--line);
+  font-family: var(--mono);
+}
+.credits span { color: #e6fff2; font-size: 15px; }
+.credits em { color: var(--green); font-style: normal; font-size: 12px; letter-spacing: 1px; }
+
+/* ================= BOOT ================= */
+#screen-boot { background: #000; }
+#screen-boot::before { display: none; }
+#boot-log {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 26px 30px;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #d8d8d8;
+  white-space: pre-wrap;
+}
+#boot-log .ok   { color: var(--green); }
+#boot-log .warn { color: var(--amber); }
+#boot-log .err  { color: var(--red); font-weight: bold; }
+#boot-log .dim  { color: #6a6a6a; }
+#boot-log .cur  { background: #d8d8d8; color: #000; }
+
+/* ================= BSOD ================= */
+#screen-lose { background: #0a1a8c; }
+#screen-lose::before { display: none; }
+.bsod {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 8vh 26px;
+  font-family: var(--mono);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.85;
+}
+.bsod h2 {
+  background: #cfcfcf;
+  color: #0a1a8c;
+  display: inline-block;
+  padding: 2px 14px;
+  font-size: 16px;
+  letter-spacing: 4px;
+  margin: 0 0 26px;
+}
+.bsod-code { color: #ffd479; margin: 22px 0; }
+.bsod-hint { color: #9fb4ff; margin-top: 22px; }
+.bsod .menu-btn { color: #fff; border-color: #7f9cff; background: rgba(255,255,255,.07); }
+.bsod .menu-btn:hover { background: #fff; color: #0a1a8c; box-shadow: none; }
+
+.bsod-stats {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 14px 18px;
+  border: 1px solid rgba(255,255,255,.28);
+  background: rgba(0,0,0,.18);
+}
+.bsod-stats li { display: flex; justify-content: space-between; gap: 20px; }
+.bsod-stats li b { font-weight: bold; }
+
+/* ================= VICTORIA ================= */
+#screen-win { background: radial-gradient(circle at 50% 0%, #0d2438 0%, #05070a 70%); }
+.doc.win .bsod-stats {
+  font-family: var(--mono);
+  border-color: var(--line);
+  background: var(--bg-panel);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 2;
+}
+.doc.win .bsod-stats li b { color: var(--cyan); }
+.win-lead { color: #a9c6bd; font-size: 14px; line-height: 1.7; }
+.win-learn {
+  margin-top: 26px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--cyan);
+  padding: 16px 20px;
+}
+.win-learn h3 {
+  margin: 0 0 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--amber);
+  letter-spacing: 1px;
+}
+.win-learn ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.9; color: #a9c6bd; }
+.win-learn b { color: #e6fff2; }

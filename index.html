@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glitch.TEC — PC Corrompida</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/screens.css">
+<link rel="stylesheet" href="css/desktop.css">
+<link rel="stylesheet" href="css/windows.css">
+<link rel="stylesheet" href="css/effects.css">
+</head>
+<body>
+
+<div id="crt">
+
+  <!-- ============ PANTALLA 1: TITULO / INICIO ============ -->
+  <section id="screen-title" class="screen is-active">
+    <div class="title-wrap">
+      <h1 class="game-title" data-text="GLITCH.TEC">GLITCH<span class="dot">.</span>TEC</h1>
+      <p class="game-sub">P C &nbsp; C O R R O M P I D A</p>
+      <p class="game-tagline">
+        Tu computadora de estudio fue infectada.<br>
+        Algo dentro del sistema ya no te obedece.
+      </p>
+
+      <nav class="main-menu">
+        <button class="menu-btn" data-action="start">INICIAR PARTIDA</button>
+        <button class="menu-btn" data-action="help">INSTRUCCIONES</button>
+        <button class="menu-btn" data-action="credits">CRÉDITOS</button>
+      </nav>
+
+      <p class="build-tag">prototipo funcional v0.4 (alfa) · PISWD</p>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA 2: INSTRUCCIONES ============ -->
+  <section id="screen-help" class="screen">
+    <div class="doc">
+      <h2 class="doc-title">// MANUAL DE SUPERVIVENCIA</h2>
+
+      <div class="doc-grid">
+        <article class="doc-card">
+          <h3>1. El objetivo</h3>
+          <p>Sos un estudiante y un <b>malware consciente</b> tomó tu PC. Tenés que
+             rastrearlo, contenerlo y purgarlo antes de que la
+             <b>integridad del sistema</b> llegue a 0%.</p>
+        </article>
+
+        <article class="doc-card">
+          <h3>2. Cómo se juega</h3>
+          <p>Todo pasa dentro de un escritorio simulado. Abrís programas desde los
+             iconos o el menú <b>Inicio</b>. La herramienta principal es la
+             <b>Terminal</b>: se juega escribiendo comandos reales.</p>
+        </article>
+
+        <article class="doc-card">
+          <h3>3. Comandos base</h3>
+          <ul class="cmd-list">
+            <li><code>help</code> — lista de comandos</li>
+            <li><code>dir</code> — ver contenido de la carpeta</li>
+            <li><code>cd &lt;carpeta&gt;</code> — entrar · <code>cd ..</code> volver</li>
+            <li><code>type &lt;archivo&gt;</code> — leer un archivo</li>
+            <li><code>scan &lt;archivo&gt;</code> — analizar amenazas</li>
+            <li><code>kill &lt;pid&gt;</code> — terminar un proceso</li>
+            <li><code>pista</code> — ayuda (cuesta puntos)</li>
+          </ul>
+        </article>
+
+        <article class="doc-card">
+          <h3>4. Integridad = tus vidas</h3>
+          <p>Arrancás con <b>100%</b>. Perdés integridad si dejás pop-ups abiertos,
+             matás procesos legítimos, confiás en un correo falso o dejás que la CPU
+             colapse. Si llega a <b>0%</b>, pantalla azul: derrota.</p>
+        </article>
+
+        <article class="doc-card">
+          <h3>5. Los pop-ups mienten</h3>
+          <p>El malware abre ventanas emergentes. <b>Nunca aceptes</b> lo que ofrecen:
+             cerrarlas o rechazarlas es lo correcto. Cada pop-up abierto te drena
+             integridad con el tiempo.</p>
+        </article>
+
+        <article class="doc-card">
+          <h3>6. Niveles</h3>
+          <ol class="lvl-list">
+            <li><b>Reconocimiento</b> — encontrar el archivo infectado</li>
+            <li><b>Contención</b> — matar los procesos del malware</li>
+            <li><b>Phishing</b> — clasificar correos reales y falsos</li>
+            <li><b>Purga</b> — enfrentamiento final</li>
+          </ol>
+        </article>
+      </div>
+
+      <p class="doc-foot">
+        Puntaje = objetivos cumplidos + decisiones correctas + integridad restante.
+        Las pistas y los errores restan.
+      </p>
+
+      <div class="doc-actions">
+        <button class="menu-btn" data-action="start">EMPEZAR AHORA</button>
+        <button class="menu-btn ghost" data-action="back">VOLVER</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA 3: CREDITOS ============ -->
+  <section id="screen-credits" class="screen">
+    <div class="doc">
+      <h2 class="doc-title">// EQUIPO</h2>
+      <ul class="credits">
+        <li><span>Alvarez Santiago</span><em>Back-End</em></li>
+        <li><span>Cora Alex</span><em>Front-End</em></li>
+        <li><span>Gomez Nayla</span><em>Liderazgo</em></li>
+        <li><span>Ortiz Morena</span><em>Diseño Gráfico</em></li>
+      </ul>
+      <p class="doc-foot">
+        Materia: PISWD · Profesor: Callamullo Diego<br>
+        Glitch.TEC — Videojuego educativo de simulación y puzzles sobre ciberseguridad.
+      </p>
+      <div class="doc-actions">
+        <button class="menu-btn ghost" data-action="back">VOLVER</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA 4: BOOT ============ -->
+  <section id="screen-boot" class="screen">
+    <pre id="boot-log"></pre>
+  </section>
+
+  <!-- ============ PANTALLA 5: ESCRITORIO ============ -->
+  <section id="screen-desktop" class="screen">
+    <div id="desktop">
+      <div id="icon-layer"></div>
+      <div id="window-layer"></div>
+      <div id="popup-layer"></div>
+
+      <!-- HUD -->
+      <aside id="hud">
+        <div class="hud-head">
+          <span class="hud-level" id="hud-level">NIVEL 1</span>
+          <span class="hud-name" id="hud-levelname">Reconocimiento</span>
+        </div>
+
+        <div class="hud-row">
+          <label>INTEGRIDAD</label>
+          <div class="bar"><i id="bar-integrity" style="width:100%"></i></div>
+          <span class="val" id="val-integrity">100%</span>
+        </div>
+
+        <div class="hud-row">
+          <label>INFECCIÓN</label>
+          <div class="bar bar-bad"><i id="bar-infection" style="width:8%"></i></div>
+          <span class="val" id="val-infection">8%</span>
+        </div>
+
+        <div class="hud-stats">
+          <div><b id="val-score">0</b><small>PUNTOS</small></div>
+          <div><b id="val-time">00:00</b><small>TIEMPO</small></div>
+          <div><b id="val-popups">0</b><small>POP-UPS</small></div>
+        </div>
+
+        <div class="hud-obj">
+          <h4>OBJETIVOS</h4>
+          <ul id="objective-list"></ul>
+        </div>
+      </aside>
+
+      <!-- Dialogo narrativo -->
+      <div id="dialog" class="dialog hidden">
+        <div class="dialog-avatar" id="dialog-avatar">?</div>
+        <div class="dialog-body">
+          <div class="dialog-who" id="dialog-who">???</div>
+          <p class="dialog-text" id="dialog-text"></p>
+          <button class="dialog-next" id="dialog-next">CONTINUAR ▸</button>
+        </div>
+      </div>
+
+      <!-- Toasts -->
+      <div id="toast-layer"></div>
+    </div>
+
+    <!-- Barra de tareas -->
+    <div id="taskbar">
+      <button id="start-btn"><span class="flag"></span>inicio</button>
+      <div id="task-buttons"></div>
+      <div id="tray">
+        <button id="mute-btn" title="Silenciar">♪</button>
+        <span id="clock">--:--</span>
+      </div>
+    </div>
+
+    <!-- Menu inicio -->
+    <div id="start-menu" class="hidden">
+      <div class="sm-head">
+        <div class="sm-avatar">E</div>
+        <div class="sm-user">estudiante<small>WinTEC XP</small></div>
+      </div>
+      <div class="sm-body" id="sm-programs"></div>
+      <div class="sm-foot">
+        <button data-sm="help">Manual de supervivencia</button>
+        <button data-sm="restart">Reiniciar partida</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA 6: DERROTA (BSOD) ============ -->
+  <section id="screen-lose" class="screen">
+    <div class="bsod">
+      <h2>WINTEC</h2>
+      <p>Se ha detectado un problema y el sistema fue apagado para evitar daños.</p>
+      <p class="bsod-code">SYSTEM_INTEGRITY_FAILURE (0x000000GL1TCH)</p>
+      <p>El malware tomó control total del equipo.</p>
+      <ul class="bsod-stats" id="lose-stats"></ul>
+      <p class="bsod-hint">Presioná REINTENTAR para restaurar el último punto seguro.</p>
+      <div class="doc-actions">
+        <button class="menu-btn" data-action="restart">REINTENTAR</button>
+        <button class="menu-btn ghost" data-action="menu">MENÚ PRINCIPAL</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA 7: VICTORIA ============ -->
+  <section id="screen-win" class="screen">
+    <div class="doc win">
+      <h2 class="doc-title win-title">// SISTEMA RESTAURADO</h2>
+      <p class="win-lead">El proceso hostil fue eliminado. Tu PC vuelve a ser tuya.</p>
+      <ul class="bsod-stats" id="win-stats"></ul>
+      <div class="win-learn">
+        <h3>Lo que aprendiste</h3>
+        <ul id="win-learn-list"></ul>
+      </div>
+      <div class="doc-actions">
+        <button class="menu-btn" data-action="restart">JUGAR DE NUEVO</button>
+        <button class="menu-btn ghost" data-action="menu">MENÚ PRINCIPAL</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="scanlines"></div>
+  <div id="glitch-overlay"></div>
+  <div id="flash"></div>
+</div>
+
+<script src="js/vendor/p5.min.js"></script>
+<script src="js/state.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/filesystem.js"></script>
+<script src="js/terminal.js"></script>
+<script src="js/explorer.js"></script>
+<script src="js/processes.js"></script>
+<script src="js/mail.js"></script>
+<script src="js/popups.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/boss.js"></script>
+<script src="js/api.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
