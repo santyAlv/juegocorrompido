@@ -28,9 +28,13 @@ $hints     = (int)($body['hints'] ?? 0);
 $popups    = (int)($body['popups_closed'] ?? 0);
 $status    = $won ? 'won' : 'lost';
 
+$mode = (string)($body['mode'] ?? 'virus');
+$mode = ($mode === 'tecnico') ? 'tecnico' : 'virus';
+
 try {
     $stmt = db()->prepare(
         'UPDATE partidas SET
+            modo           = :modo,
             status         = :status,
             won            = :won,
             score          = :score,
@@ -45,6 +49,7 @@ try {
          WHERE id = :id'
     );
     $stmt->execute([
+        ':modo'      => $mode,
         ':status'    => $status,
         ':won'       => $won,
         ':score'     => $score,
@@ -66,6 +71,7 @@ try {
         ':pid'    => $matchId,
         ':etype'  => $won ? 'match_won' : 'match_lost',
         ':detail' => json_encode([
+            'mode'  => $mode,
             'score' => $score,
             'level' => $level,
             'time'  => $elapsed,

@@ -38,6 +38,7 @@
     GT.state = {
       running: false,
       finished: false,
+      mode: 'virus',            // 'virus' (PC corrompida) | 'tecnico' (servicio tecnico)
       level: 0,                 // 0 = todavia no arranco
       integrity: GT.CONFIG.MAX_INTEGRITY,
       score: 0,
@@ -48,7 +49,12 @@
       popupsSpawned: 0,
       objectives: [],           // objetivos del nivel actual
       flags: {},                // marcas de progreso libres (ej. archivo escaneado)
-      learned: []               // conceptos educativos desbloqueados
+      learned: [],              // conceptos educativos desbloqueados
+
+      /* Modo tecnico */
+      techMinutes: 0,           // minutos de taller consumidos
+      techCost: 0,              // plata gastada en repuestos
+      techSolved: 0             // ordenes de trabajo cerradas
     };
     return GT.state;
   };

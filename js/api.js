@@ -17,6 +17,11 @@
 
   function storageKey() { return 'glitchtec_scores'; }
 
+  /** Modo de juego actual: 'virus' (PC corrompida) o 'tecnico' (taller). */
+  function currentMode() {
+    return (GT.state && GT.state.mode === 'tecnico') ? 'tecnico' : 'virus';
+  }
+
   function loadLocal() {
     try { return JSON.parse(localStorage.getItem(storageKey()) || '[]'); }
     catch (e) { return []; }
@@ -67,6 +72,7 @@
     matchId = null;
     var payload = {
       player_name: playerName,
+      mode: currentMode(),
       started_at: new Date().toISOString()
     };
 
@@ -103,6 +109,7 @@
     var row = {
       match_id: matchId,
       player_name: playerName,
+      mode: summary.mode || currentMode(),
       won: !!summary.won,
       score: summary.total || summary.base || 0,
       base_score: summary.base || 0,
@@ -119,6 +126,7 @@
     var local = loadLocal();
     local.unshift({
       player: row.player_name,
+      modo: row.mode,
       score: row.score,
       won: row.won,
       level: row.level_reached,
@@ -136,21 +144,27 @@
   };
 
   /** Ranking (servidor o local). */
-  api.getRanking = function (limit) {
+  api.getRanking = function (limit, modo) {
     limit = limit || 10;
+    var filtro = (modo === 'virus' || modo === 'tecnico') ? modo : null;
 
-    if (offline) {
-      return Promise.resolve({
-        offline: true,
-        ranking: loadLocal().slice(0, limit)
-      });
+    function localRanking() {
+      var rows = loadLocal();
+      if (filtro) {
+        rows = rows.filter(function (r) { return (r.modo || 'virus') === filtro; });
+      }
+      return rows.slice(0, limit);
     }
 
-    return get('ranking.php?limit=' + limit).then(function (data) {
+    if (offline) {
+      return Promise.resolve({ offline: true, modo: filtro || 'todos', ranking: localRanking() });
+    }
+
+    return get('ranking.php?limit=' + limit + (filtro ? '&modo=' + filtro : '')).then(function (data) {
       return data;
     }).catch(function () {
       offline = true;
-      return { offline: true, ranking: loadLocal().slice(0, limit) };
+      return { offline: true, modo: filtro || 'todos', ranking: localRanking() };
     });
   };
 

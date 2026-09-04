@@ -55,11 +55,21 @@
         }
       };
 
-      p.windowResized = function () {
-        p.resizeCanvas(host.clientWidth, host.clientHeight);
-      };
+      p.windowResized = function () { fitCanvas(); };
+
+      /* El escritorio arranca oculto (display:none), asi que al crear el
+         sketch mide 0x0. Hay que re-medirlo cuando la pantalla aparece:
+         si no, el canvas queda en cero y ademas p.copy() rompe. */
+      function fitCanvas() {
+        var w = host.clientWidth, h = host.clientHeight;
+        if (w < 2 || h < 2) return false;
+        if (p.width !== w || p.height !== h) p.resizeCanvas(w, h);
+        return true;
+      }
 
       p.draw = function () {
+        if (!fitCanvas()) return;              // pantalla oculta: no hay nada que dibujar
+
         var infection = (GT.state && typeof GT.getInfection === 'function')
           ? GT.getInfection() / 100 : 0.08;
         var running = GT.state && GT.state.running && !GT.state.finished;

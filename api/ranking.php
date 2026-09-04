@@ -1,7 +1,7 @@
 <?php
 /**
  * Glitch.TEC — ranking de mejores puntajes
- * GET api/ranking.php?limit=10
+ * GET api/ranking.php?limit=10[&modo=virus|tecnico]
  */
 declare(strict_types=1);
 
@@ -11,19 +11,26 @@ $limit = (int)($_GET['limit'] ?? 10);
 if ($limit < 1)  $limit = 10;
 if ($limit > 50) $limit = 50;
 
+// Filtro opcional por modo de juego: los dos modos puntuan distinto
+$modo = isset($_GET['modo']) ? (string)$_GET['modo'] : '';
+$filtraModo = ($modo === 'virus' || $modo === 'tecnico');
+
 try {
     $stmt = db()->prepare(
         'SELECT player_name AS player,
+                modo,
                 score,
                 won,
                 level_reached AS level,
                 elapsed_sec AS time,
                 finished_at AS at
          FROM partidas
-         WHERE finished_at IS NOT NULL
-         ORDER BY score DESC, finished_at ASC
+         WHERE finished_at IS NOT NULL'
+        . ($filtraModo ? ' AND modo = :modo' : '') .
+        ' ORDER BY score DESC, finished_at ASC
          LIMIT :lim'
     );
+    if ($filtraModo) $stmt->bindValue(':modo', $modo, PDO::PARAM_STR);
     $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
     $stmt->execute();
     $rows = $stmt->fetchAll();
@@ -37,7 +44,12 @@ try {
     }
     unset($r);
 
-    json_out(['ok' => true, 'offline' => false, 'ranking' => $rows]);
+    json_out([
+        'ok'      => true,
+        'offline' => false,
+        'modo'    => $filtraModo ? $modo : 'todos',
+        'ranking' => $rows,
+    ]);
 } catch (Throwable $e) {
     json_error('No se pudo obtener el ranking: ' . $e->getMessage(), 500);
 }

@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="css/desktop.css">
 <link rel="stylesheet" href="css/windows.css">
 <link rel="stylesheet" href="css/effects.css">
+<link rel="stylesheet" href="css/hacker.css">
+<link rel="stylesheet" href="css/tech.css">
 </head>
 <body>
 
@@ -25,12 +27,62 @@
       </p>
 
       <nav class="main-menu">
-        <button class="menu-btn" data-action="start">INICIAR PARTIDA</button>
+        <button class="menu-btn" data-action="modes">ELEGIR MODO DE JUEGO</button>
         <button class="menu-btn" data-action="help">INSTRUCCIONES</button>
         <button class="menu-btn" data-action="credits">CRÉDITOS</button>
       </nav>
 
       <p class="build-tag">prototipo funcional v0.4 (alfa) · PISWD</p>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA 1B: ELEGIR MODO ============ -->
+  <section id="screen-mode" class="screen">
+    <div class="modes-wrap">
+      <h2 class="modes-title">// ELEGÍ TU MODO</h2>
+      <p class="modes-lead">Dos formas distintas de pelearla contra una computadora.</p>
+
+      <div class="modes-grid">
+
+        <div class="mode-card software" data-action="play" data-mode="virus" role="button" tabindex="0">
+          <span class="mode-ico">☠</span>
+          <span class="mode-tag">MODO 1 · SOFTWARE</span>
+          <span class="mode-name">PC CORROMPIDA</span>
+          <span class="mode-desc">
+            Tu PC de estudio está infectada y un hacker vive adentro. Terminal, procesos,
+            correos y una purga final para sacarlo.
+          </span>
+          <ul class="mode-list">
+            <li>4 niveles: reconocimiento, contención, phishing y purga</li>
+            <li>Terminal con comandos reales</li>
+            <li>El hacker se pasea por la pantalla y te amenaza</li>
+            <li>Te bloquea teclas y te da vuelta los colores</li>
+          </ul>
+          <span class="mode-go">ENTRAR AL SISTEMA ▸</span>
+        </div>
+
+        <div class="mode-card tecnico" data-action="play" data-mode="tecnico" role="button" tabindex="0">
+          <span class="mode-ico">🛠</span>
+          <span class="mode-tag">MODO 2 · HARDWARE</span>
+          <span class="mode-name">SERVICIO TÉCNICO</span>
+          <span class="mode-desc">
+            Sos el técnico del taller. Te entran equipos rotos y tenés que descubrir
+            por qué fallan: inspeccionar, probar, reparar y explicar la falla.
+          </span>
+          <ul class="mode-list">
+            <li>4 órdenes de trabajo con fallas distintas</li>
+            <li>Diagnóstico por pasos: mirar, descartar, probar</li>
+            <li>Cambiar piezas sanas te cuesta plata y reputación</li>
+            <li>Cerrás cada orden explicando qué era</li>
+          </ul>
+          <span class="mode-go">ABRIR EL TALLER ▸</span>
+        </div>
+
+      </div>
+
+      <div class="doc-actions modes-foot">
+        <button class="menu-btn ghost" data-action="back">VOLVER AL MENÚ</button>
+      </div>
     </div>
   </section>
 
@@ -90,15 +142,42 @@
             <li><b>Purga</b> — enfrentamiento final</li>
           </ol>
         </article>
+
+        <article class="doc-card">
+          <h3>7. El hacker</h3>
+          <p>Un tipo encapuchado se pasea por tu pantalla y te amenaza. Cada tanto ataca:</p>
+          <ul class="cmd-list">
+            <li><b>Te bloquea teclas.</b> Dejan de funcionar en todo el sistema. Para recuperarlas
+                tenés que responder bien una <b>pregunta de software</b> (se contesta con el mouse,
+                porque el teclado es suyo). Mientras dure, perdés integridad.</li>
+            <li><b>Te corrompe los colores</b> de la pantalla durante <b>20 segundos</b>.</li>
+          </ul>
+          <p>Si le hacés click se escapa y le retrasás el próximo ataque.</p>
+        </article>
+
+        <article class="doc-card">
+          <h3>8. Modo Servicio Técnico</h3>
+          <p>El otro modo de juego. Sos el técnico del taller: te entran equipos rotos y tenés
+             que descubrir por qué fallan.</p>
+          <ul class="cmd-list">
+            <li><b>Inspeccionar</b> es gratis pero consume minutos de taller</li>
+            <li><b>Actuar</b> sobre lo que encontraste: reconectar, reasentar, limpiar, cambiar</li>
+            <li><b>Probar</b> el equipo: si sigue fallando, cambia el síntoma</li>
+            <li><b>Cerrar la orden</b> explicando cuál era la falla</li>
+          </ul>
+          <p>Cambiar una pieza sana te cuesta plata y <b>reputación</b>. Si la reputación llega
+             a 0%, se termina la partida.</p>
+        </article>
       </div>
 
       <p class="doc-foot">
         Puntaje = objetivos cumplidos + decisiones correctas + integridad restante.
-        Las pistas y los errores restan.
+        Las pistas y los errores restan.<br>
+        En el taller: diagnósticos correctos + trabajo eficiente. Los repuestos innecesarios restan.
       </p>
 
       <div class="doc-actions">
-        <button class="menu-btn" data-action="start">EMPEZAR AHORA</button>
+        <button class="menu-btn" data-action="modes">EMPEZAR AHORA</button>
         <button class="menu-btn ghost" data-action="back">VOLVER</button>
       </div>
     </div>
@@ -177,8 +256,6 @@
         </div>
       </div>
 
-      <!-- Toasts -->
-      <div id="toast-layer"></div>
     </div>
 
     <!-- Barra de tareas -->
@@ -203,6 +280,63 @@
         <button data-sm="restart">Reiniciar partida</button>
       </div>
     </div>
+  </section>
+
+  <!-- ============ PANTALLA 5B: TALLER (MODO TÉCNICO) ============ -->
+  <section id="screen-tech" class="screen">
+
+    <header class="tech-top">
+      <div class="tech-brand">
+        <b>SERVICIO TÉCNICO TEC</b>
+        <small>BANCO DE TRABAJO</small>
+      </div>
+      <div id="tech-case-title">ORDEN 001 / 004</div>
+
+      <div class="tech-metrics">
+        <div class="tech-metric">
+          <label>TIEMPO DE TALLER</label>
+          <span class="val" id="tech-val-min">0 min</span>
+        </div>
+        <div class="tech-metric">
+          <label>REPUESTOS</label>
+          <span class="val" id="tech-val-cost">$0</span>
+        </div>
+        <div class="tech-metric">
+          <label>PUNTAJE</label>
+          <span class="val" id="tech-val-score">0</span>
+        </div>
+        <div class="tech-metric">
+          <label>ÓRDENES</label>
+          <span class="val" id="tech-val-solved">0 / 4</span>
+        </div>
+        <div class="tech-metric rep">
+          <label>REPUTACIÓN DEL TALLER</label>
+          <div class="row">
+            <div class="bar"><i id="tech-bar-rep" style="width:100%"></i></div>
+            <span class="val" id="tech-val-rep">100%</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="tech-main">
+      <aside class="tech-col" id="tech-ticket"></aside>
+
+      <section class="tech-col" id="tech-bench">
+        <div id="tech-pc"></div>
+        <div id="tech-actions"></div>
+      </section>
+
+      <aside class="tech-col" id="tech-log-col">
+        <h3>BITÁCORA</h3>
+        <div id="tech-log"></div>
+      </aside>
+    </div>
+
+    <footer class="tech-foot">
+      <span>Regla del taller: inspeccionar es gratis, cambiar piezas no.</span>
+      <button data-action="menu">SALIR AL MENÚ</button>
+    </footer>
   </section>
 
   <!-- ============ PANTALLA 6: DERROTA (BSOD) ============ -->
@@ -238,6 +372,9 @@
     </div>
   </section>
 
+  <!-- Avisos flotantes: viven a nivel de #crt para servir a los dos modos -->
+  <div id="toast-layer"></div>
+
   <div id="scanlines"></div>
   <div id="glitch-overlay"></div>
   <div id="flash"></div>
@@ -254,8 +391,10 @@
 <script src="js/processes.js"></script>
 <script src="js/mail.js"></script>
 <script src="js/popups.js"></script>
+<script src="js/hacker.js"></script>
 <script src="js/levels.js"></script>
 <script src="js/boss.js"></script>
+<script src="js/tech.js"></script>
 <script src="js/api.js"></script>
 <script src="js/game.js"></script>
 </body>

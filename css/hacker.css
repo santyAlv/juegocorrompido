@@ -1,0 +1,309 @@
+/* ============================================================
+   Glitch.TEC — GL1TCH-M4N: personaje, secuestro de teclado
+   y corrupcion de colores.
+   La capa vive a nivel de #crt (no dentro de #screen-desktop)
+   para que el filtro de colores NO la afecte: el cartel y el
+   panel de rescate tienen que seguir siendo legibles.
+   ============================================================ */
+
+#hacker-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 8000;
+  pointer-events: none;
+}
+
+/* ---------------- El personaje ---------------- */
+.hk-fig {
+  position: absolute;
+  width: 108px;
+  height: 118px;
+  pointer-events: auto;
+  cursor: crosshair;
+  transition: left .95s cubic-bezier(.36,1.4,.5,1), top .95s cubic-bezier(.36,1.4,.5,1);
+  animation: hkFloat 3.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 14px rgba(178,107,255,.55));
+}
+.hk-fig.no-anim { transition: none; }
+.hk-fig .hk-svg { width: 100%; height: 100%; display: block; }
+
+@keyframes hkFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-9px) rotate(1.5deg); }
+}
+
+/* Entrada */
+.hk-fig.is-in { animation: hkIn .5s cubic-bezier(.2,1.5,.4,1), hkFloat 3.4s ease-in-out .5s infinite; }
+@keyframes hkIn {
+  0%   { opacity: 0; transform: scale(.3) rotate(-25deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+/* Salto de una posicion a otra */
+.hk-fig.is-jumping .hk-svg { animation: hkJump .42s ease-in-out; }
+@keyframes hkJump {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  30%      { transform: scaleY(1.22) scaleX(.82); }
+  70%      { transform: scaleY(.86) scaleX(1.16); }
+}
+
+/* Modo ataque: se pone rojo y vibra */
+.hk-fig.is-attacking {
+  filter: drop-shadow(0 0 18px rgba(255,59,82,.85)) hue-rotate(85deg) saturate(1.6);
+  animation: hkFloat 1.1s ease-in-out infinite, hkShake .18s steps(2) infinite;
+}
+@keyframes hkShake {
+  0%, 100% { margin-left: 0; }
+  50%      { margin-left: 3px; }
+}
+
+/* Ojos parpadeando */
+.hk-eye { animation: hkBlink 4.2s steps(1) infinite; }
+@keyframes hkBlink {
+  0%, 92%, 100% { opacity: 1; }
+  94%, 98%      { opacity: .15; }
+}
+
+.hk-fig:hover { filter: drop-shadow(0 0 20px rgba(53,255,122,.75)); }
+
+/* ---------------- Globo de amenaza ---------------- */
+.hk-bubble {
+  position: absolute;
+  transform: translateX(-50%);
+  max-width: 260px;
+  padding: 8px 13px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.45;
+  color: #f2e6ff;
+  background: rgba(28, 6, 48, .96);
+  border: 1px solid var(--violet);
+  border-radius: 3px;
+  box-shadow: 0 6px 26px rgba(0,0,0,.7), 0 0 22px rgba(178,107,255,.28);
+  text-align: center;
+  animation: hkBubbleIn .18s ease;
+  pointer-events: none;
+}
+.hk-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: var(--violet);
+}
+@keyframes hkBubbleIn { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+/* ============================================================
+   Panel de rescate del teclado
+   ============================================================ */
+/* El panel NO bloquea la pantalla: el juego sigue, lo que está
+   bloqueado son las teclas. Por eso la capa deja pasar los clics
+   y sólo el recuadro los recibe. */
+.hk-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 8500;
+  pointer-events: none;
+  animation: hkFade .2s ease;
+}
+@keyframes hkFade { from { opacity: 0; } }
+
+.hk-modal.nudge .hk-modal-box { animation: hkNudge .22s cubic-bezier(.36,.07,.19,.97); }
+@keyframes hkNudge {
+  0%, 100% { margin-left: 0; }
+  25%      { margin-left: -9px; }
+  75%      { margin-left: 9px; }
+}
+
+.hk-modal-box {
+  position: absolute;
+  left: 50%;
+  bottom: 58px;
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 40px));
+  max-height: calc(100% - 100px);
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  background: #0a0512;
+  border: 1px solid var(--violet);
+  box-shadow: 0 20px 70px rgba(0,0,0,.9), 0 0 44px rgba(178,107,255,.35);
+  animation: hkBoxIn .26s cubic-bezier(.2,1.3,.4,1);
+}
+/* Una vez que el jugador lo arrastra, manda la posición absoluta */
+.hk-modal-box.dragged { transform: none; }
+@keyframes hkBoxIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(24px); }
+}
+
+.hk-modal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: move;
+  user-select: none;
+  padding: 9px 13px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #fff;
+  background: linear-gradient(180deg, #7c2bd6 0%, #4a1090 100%);
+  border-bottom: 1px solid #2d0a63;
+}
+.hk-skull { font-size: 15px; animation: hkBlink 2.2s steps(1) infinite; }
+.hk-modal-name { flex: 1; }
+.hk-fold {
+  width: 22px; height: 18px;
+  display: grid; place-items: center;
+  font-size: 11px; line-height: 1;
+  color: #fff;
+  background: rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.3);
+  cursor: pointer;
+}
+.hk-fold:hover { background: rgba(255,255,255,.32); }
+
+/* Plegado: queda sólo la barra, para poder usar la Terminal */
+.hk-modal-box.collapsed .hk-modal-body { display: none; }
+.hk-modal-box.collapsed { width: min(360px, calc(100% - 40px)); }
+.hk-modal-box.collapsed .hk-modal-bar { border-bottom: 0; }
+
+.hk-modal-body {
+  padding: 16px 18px 18px;
+  overflow: auto;
+  font-size: 13px;
+}
+
+.hk-modal-lead {
+  margin: 0 0 13px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #e0c9ff;
+}
+
+/* Teclas robadas */
+.hk-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.hk-key {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: bold;
+  color: #ffd0d8;
+  background: #180a12;
+  border: 1px solid var(--red-dim);
+  border-bottom-width: 3px;
+  border-radius: 4px;
+  position: relative;
+  animation: hkKeyDead 1.6s ease-in-out infinite;
+}
+.hk-key::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: linear-gradient(-45deg,
+    transparent 47.5%, var(--red) 47.5%, var(--red) 52.5%, transparent 52.5%);
+  opacity: .85;
+}
+@keyframes hkKeyDead {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .55; }
+}
+
+.hk-modal-q {
+  margin: 0 0 13px;
+  padding-top: 13px;
+  border-top: 1px solid #241041;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+}
+.hk-modal-q b { color: var(--violet); }
+
+.hk-opts { display: flex; flex-direction: column; gap: 7px; }
+.hk-opt {
+  text-align: left;
+  padding: 10px 13px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #cfe6dd;
+  background: #120a1e;
+  border: 1px solid #2c1450;
+  border-radius: 2px;
+  transition: background .12s, border-color .12s, transform .08s;
+}
+.hk-opt b { color: var(--violet); margin-right: 4px; }
+.hk-opt:hover:not(:disabled) { background: #1e0f36; border-color: var(--violet); transform: translateX(3px); }
+.hk-opt:disabled { opacity: .5; cursor: default; }
+.hk-opt.right { background: rgba(53,255,122,.14); border-color: var(--green); color: #d9ffe8; opacity: 1; }
+.hk-opt.wrong { background: rgba(255,59,82,.14); border-color: var(--red); color: #ffd7dd; }
+
+.hk-feedback {
+  margin-top: 13px;
+  padding: 11px 13px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  border-left: 3px solid var(--line);
+  background: rgba(255,255,255,.03);
+}
+.hk-feedback.ok  { border-left-color: var(--green); color: #d9ffe8; }
+.hk-feedback.bad { border-left-color: var(--red); color: #ffd7dd; }
+
+.hk-modal-foot {
+  margin: 14px 0 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .4px;
+  color: var(--text-dim);
+}
+
+/* ============================================================
+   Corrupcion de colores (20 segundos)
+   Se aplica solo a la pantalla de juego, nunca a la capa del
+   hacker, para que el contador siga leyendose.
+   ============================================================ */
+#crt.color-hijack #screen-desktop,
+#crt.color-hijack #screen-tech {
+  animation: hkColorRot 3.4s linear infinite;
+}
+@keyframes hkColorRot {
+  0%   { filter: invert(1) hue-rotate(0deg)   saturate(1.7) contrast(1.12); }
+  50%  { filter: invert(1) hue-rotate(180deg) saturate(2.1) contrast(1.2); }
+  100% { filter: invert(1) hue-rotate(360deg) saturate(1.7) contrast(1.12); }
+}
+
+.hk-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 8600;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px;
+  font-family: var(--mono);
+  background: rgba(10, 3, 18, .94);
+  border: 1px solid var(--violet);
+  border-left: 4px solid var(--red);
+  box-shadow: 0 6px 26px rgba(0,0,0,.7);
+  pointer-events: none;
+  animation: hkBadgePulse 1s steps(2) infinite;
+}
+.hk-badge b { font-size: 10px; letter-spacing: 2px; color: #ff8fa0; }
+.hk-badge span { font-size: 19px; color: var(--violet); letter-spacing: 2px; }
+@keyframes hkBadgePulse { 50% { border-left-color: var(--violet); } }
+
+@media (max-width: 980px) {
+  .hk-fig { width: 84px; height: 92px; }
+  .hk-bubble { max-width: 200px; font-size: 11px; }
+}

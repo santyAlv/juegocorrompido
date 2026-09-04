@@ -36,7 +36,26 @@
     { t: '', d: 200 }
   ];
 
-  function runBoot(done) {
+  /* Apertura del taller (modo tecnico): mismo recurso, otro relato. */
+  var TECH_BOOT_LINES = [
+    { t: 'SERVICIO TÉCNICO TEC  —  sistema de órdenes v1.8', c: 'dim', d: 300 },
+    { t: 'Abriendo el taller...', d: 260 },
+    { t: '', d: 60 },
+    { t: 'Inventario de herramientas:', d: 220 },
+    { t: '  Destornilladores ....... OK', c: 'ok', d: 110 },
+    { t: '  Aire comprimido ........ OK', c: 'ok', d: 110 },
+    { t: '  Pasta térmica .......... OK', c: 'ok', d: 110 },
+    { t: '  Disco externo (backup).. OK', c: 'ok', d: 110 },
+    { t: '  Multímetro ............. OK', c: 'ok', d: 200 },
+    { t: '', d: 80 },
+    { t: 'Sincronizando órdenes de trabajo pendientes...', d: 460 },
+    { t: '  4 equipos esperando en el mostrador', c: 'warn', d: 420 },
+    { t: '', d: 100 },
+    { t: 'Técnico de turno: vos. Buena suerte.', c: 'ok', d: 640 },
+    { t: '', d: 200 }
+  ];
+
+  function runBoot(lines, done) {
     var log = document.getElementById('boot-log');
     log.innerHTML = '';
     GT.ui.setScreen('screen-boot');
@@ -44,8 +63,8 @@
 
     var i = 0;
     (function step() {
-      if (i >= BOOT_LINES.length) { setTimeout(done, 320); return; }
-      var line = BOOT_LINES[i++];
+      if (i >= lines.length) { setTimeout(done, 320); return; }
+      var line = lines[i++];
       var span = document.createElement('span');
       span.className = line.c || '';
       span.textContent = line.t + '\n';
@@ -116,6 +135,12 @@
       '  objetivos         objetivos del nivel\n' +
       '  pista             ayuda (cuesta ' + GT.CONFIG.HINT_COST + ' puntos)\n' +
       '  cls               limpiar pantalla\n\n' +
+      'EL HACKER\n' +
+      '  Se pasea por la pantalla y cada tanto te ataca:\n' +
+      '  · te BLOQUEA TECLAS: para recuperarlas respondé bien la\n' +
+      '    pregunta de software del panel (con el mouse).\n' +
+      '  · te CORROMPE LOS COLORES durante 20 segundos.\n' +
+      '  Si le hacés click se escapa y retrasa su próximo ataque.\n\n' +
       'INTEGRIDAD (tus vidas)\n' +
       '  Baja si dejás pop-ups abiertos, si aceptás lo que ofrecen,\n' +
       '  si matás procesos legítimos o si caés en un phishing.\n' +
@@ -138,10 +163,13 @@
   /* ============================================================
      Inicio de partida
      ============================================================ */
-  game.start = function () {
+  game.start = function (mode) {
     stopLoop();
 
+    mode = (mode === 'tecnico') ? 'tecnico' : 'virus';
+
     GT.resetState();
+    GT.state.mode = mode;
     GT.state.fsRoot = GT.fs.create();
     GT.state.running = true;
 
@@ -152,10 +180,21 @@
     GT.popups.reset();
     GT.boss.reset();
     GT.levels.reset();
+    GT.hacker.reset();
+    GT.tech.reset();
+    GT.ui.setGlitch(0);
 
     if (GT.api) GT.api.startMatch();
 
-    runBoot(function () {
+    if (mode === 'tecnico') {
+      runBoot(TECH_BOOT_LINES, function () {
+        GT.tech.start();
+        startLoop();
+      });
+      return;
+    }
+
+    runBoot(BOOT_LINES, function () {
       GT.ui.setScreen('screen-desktop');
       buildDesktop();
       GT.ui.setGlitch(0.08);
@@ -164,6 +203,11 @@
       // Los pop-ups arrancan después del diálogo introductorio (ver levels.start)
       startLoop();
       GT.levels.start(1);
+
+      // El hacker entra en escena unos segundos después del diálogo
+      setTimeout(function () {
+        if (GT.state.running && !GT.state.finished && GT.state.mode === 'virus') GT.hacker.start();
+      }, 9000);
     });
   };
 
@@ -187,11 +231,15 @@
     if (GT.state.running && !GT.state.finished) {
       GT.state.elapsed += dt;
 
-      GT.popups.tick(dt);
-      GT.procs.tick(dt);
-      GT.boss.tick(dt);
-
-      updateHud();
+      if (GT.state.mode === 'tecnico') {
+        GT.tech.tick(dt);
+      } else {
+        GT.popups.tick(dt);
+        GT.procs.tick(dt);
+        GT.boss.tick(dt);
+        GT.hacker.tick(dt);
+        updateHud();
+      }
     }
 
     loopId = requestAnimationFrame(frame);
@@ -202,6 +250,8 @@
      ============================================================ */
   function updateHud() {
     var s = GT.state;
+    if (s.mode === 'tecnico') { GT.tech.tick(0); return; }
+
     var def = GT.levels.DEFS[s.level];
 
     document.getElementById('hud-level').textContent = 'NIVEL ' + s.level + ' / 4';
@@ -237,6 +287,10 @@
 
     return {
       won: won,
+      mode: s.mode,
+      techMinutes: s.techMinutes || 0,
+      techCost: s.techCost || 0,
+      techSolved: s.techSolved || 0,
       base: s.score,
       timeBonus: timeBonus,
       integrityBonus: integrityBonus,
@@ -258,6 +312,8 @@
 
     GT.popups.stop();
     GT.procs.stop();
+    GT.hacker.stop();
+    GT.tech.stop();
     stopLoop();
     GT.ui.hideDialog();
     GT.audio.defeat();
@@ -265,15 +321,50 @@
     var sum = computeSummary(false);
     if (GT.api) GT.api.finishMatch(sum);
 
-    document.getElementById('lose-stats').innerHTML =
-      row('Nivel alcanzado', sum.level + ' / 4') +
-      row('Puntaje', sum.base) +
-      row('Tiempo sobrevivido', GT.formatTime(sum.elapsed)) +
-      row('Errores cometidos', sum.mistakes) +
-      row('Pop-ups cerrados', sum.popupsClosed);
+    if (sum.mode === 'tecnico') {
+      setLoseText(
+        'TALLER CERRADO',
+        'La reputación del taller llegó a cero.',
+        'REPUTATION_ZERO (0x00TALLER)',
+        'Cambiaste piezas sanas, perdiste datos o te comiste los tiempos. ' +
+        'En el oficio, el diagnóstico es el trabajo: el destornillador viene después.',
+        'Presioná REINTENTAR para volver a abrir el taller.'
+      );
+      document.getElementById('lose-stats').innerHTML =
+        row('Órdenes cerradas', sum.techSolved + ' / ' + GT.tech.totalCases) +
+        row('Puntaje', sum.base) +
+        row('Tiempo de taller', sum.techMinutes + ' min') +
+        row('Gastado en repuestos', '$' + money(sum.techCost)) +
+        row('Errores cometidos', sum.mistakes);
+    } else {
+      setLoseText(
+        'WINTEC',
+        'Se ha detectado un problema y el sistema fue apagado para evitar daños.',
+        'SYSTEM_INTEGRITY_FAILURE (0x000000GL1TCH)',
+        'El malware tomó control total del equipo.',
+        'Presioná REINTENTAR para restaurar el último punto seguro.'
+      );
+      document.getElementById('lose-stats').innerHTML =
+        row('Nivel alcanzado', sum.level + ' / 4') +
+        row('Puntaje', sum.base) +
+        row('Tiempo sobrevivido', GT.formatTime(sum.elapsed)) +
+        row('Errores cometidos', sum.mistakes) +
+        row('Pop-ups cerrados', sum.popupsClosed);
+    }
 
     setTimeout(function () { GT.ui.setScreen('screen-lose'); }, 550);
   });
+
+  /** El BSOD se reusa para las dos derrotas, con otro texto. */
+  function setLoseText(title, lead, code, detail, hint) {
+    var box = document.querySelector('#screen-lose .bsod');
+    box.querySelector('h2').textContent = title;
+    var ps = box.querySelectorAll('p');
+    ps[0].textContent = lead;
+    box.querySelector('.bsod-code').textContent = code;
+    ps[2].textContent = detail;
+    box.querySelector('.bsod-hint').textContent = hint;
+  }
 
   GT.on('victory', function () {
     if (GT.state.finished) return;
@@ -283,6 +374,8 @@
     GT.popups.stop();
     GT.popups.clearAll();
     GT.procs.stop();
+    GT.hacker.stop();
+    GT.tech.stop();
     stopLoop();
     GT.ui.hideDialog();
     GT.audio.victory();
@@ -290,12 +383,23 @@
     var sum = computeSummary(true);
     if (GT.api) GT.api.finishMatch(sum);
 
+    var tecnico = (sum.mode === 'tecnico');
+
+    document.querySelector('#screen-win .win-title').textContent =
+      tecnico ? '// TODOS LOS EQUIPOS ENTREGADOS' : '// SISTEMA RESTAURADO';
+    document.querySelector('#screen-win .win-lead').textContent = tecnico
+      ? 'Cerraste las cuatro órdenes. Cuatro clientes se van con su equipo andando.'
+      : 'El proceso hostil fue eliminado. Tu PC vuelve a ser tuya.';
+
     document.getElementById('win-stats').innerHTML =
       row('Puntaje de la partida', sum.base) +
       row('Bonus por tiempo', '+' + sum.timeBonus) +
-      row('Bonus por integridad (' + sum.integrity + '%)', '+' + sum.integrityBonus) +
+      row(tecnico ? 'Bonus por reputación (' + sum.integrity + '%)'
+                  : 'Bonus por integridad (' + sum.integrity + '%)', '+' + sum.integrityBonus) +
       row('PUNTAJE FINAL', '<b>' + sum.total + '</b>') +
       row('Tiempo total', GT.formatTime(sum.elapsed)) +
+      (tecnico ? row('Tiempo de taller', sum.techMinutes + ' min') +
+                 row('Gastado en repuestos', '$' + money(sum.techCost)) : '') +
       row('Errores', sum.mistakes) +
       row('Pistas usadas', sum.hints);
 
@@ -315,6 +419,8 @@
     return '<li><span>' + label + '</span><b>' + value + '</b></li>';
   }
 
+  function money(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+
   /* ============================================================
      Menus y navegacion
      ============================================================ */
@@ -326,19 +432,31 @@
       var action = btn.dataset.action;
       GT.audio.click();
 
-      if (action === 'start')   { game.start(); }
+      if (action === 'modes')   { GT.ui.setScreen('screen-mode'); }
+      if (action === 'play')    { hardStop(); game.start(btn.dataset.mode); }
+      if (action === 'start')   { game.start(GT.state.mode); }
       if (action === 'help')    { GT.ui.setScreen('screen-help'); }
       if (action === 'credits') { GT.ui.setScreen('screen-credits'); }
       if (action === 'back')    { GT.ui.setScreen('screen-title'); }
       if (action === 'menu')    { hardStop(); GT.ui.setScreen('screen-title'); }
-      if (action === 'restart') { hardStop(); game.start(); }
+      if (action === 'restart') { var m = GT.state.mode; hardStop(); game.start(m); }
+    });
+
+    // Las tarjetas de modo son divs con rol de boton: hay que darles teclado
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var card = e.target.closest && e.target.closest('.mode-card[data-action="play"]');
+      if (!card) return;
+      e.preventDefault();
+      hardStop();
+      game.start(card.dataset.mode);
     });
 
     document.querySelectorAll('[data-sm]').forEach(function (b) {
       b.addEventListener('click', function () {
         GT.ui.toggleStartMenu(false);
         if (b.dataset.sm === 'help') openManual();
-        if (b.dataset.sm === 'restart') { hardStop(); game.start(); }
+        if (b.dataset.sm === 'restart') { var m = GT.state.mode; hardStop(); game.start(m); }
       });
     });
   }
@@ -349,6 +467,8 @@
     GT.state.finished = true;
     GT.popups.reset();
     GT.procs.reset();
+    GT.hacker.reset();
+    GT.tech.stop();
     GT.ui.resetDesktop();
     GT.ui.setGlitch(0);
   }
@@ -358,6 +478,7 @@
      ============================================================ */
   document.addEventListener('DOMContentLoaded', function () {
     GT.ui.init();
+    GT.hacker.init();
     bindMenus();
     if (GT.engine && GT.engine.startCrt) GT.engine.startCrt();
     GT.ui.setScreen('screen-title');
